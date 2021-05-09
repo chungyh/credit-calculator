@@ -1,0 +1,114 @@
+openapi: 3.0.1
+info:
+  title: Credit Service - Caculator
+  description: Credit Service Caculator Project
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+paths:
+  /creditservice/v1/calculator:
+    post:
+      tags:
+        - Credit Assessment
+      summary: Retrieve Credit Score
+      operationId: retrieveScore
+      requestBody:
+        description: Retrieve Credit Score
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculatorRequest'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/CalculatorResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Api not found
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - creditsvc_auth:
+            - 'write:pets'
+            - 'read:pets'
+components:
+  schemas:
+    CalculatorRequest:
+      type: object
+      required:
+        - numberOfEmployees
+        - companyType
+        - numberOfYearsOperated
+      properties:
+        numberOfEmployees:
+          type: integer
+          format: int32
+        companyType:
+          type: string
+          description: Company Type
+          enum:
+            - Sole Proprietorship
+            - Partnership
+            - Limited Liability Company
+            - Others
+        numberOfYearsOperated:
+          type: integer
+          format: int32
+    CalculatorResponse:
+      type: object
+      properties:
+        creditScore:
+          type: integer
+          format: int64
+          description: Credit Score
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  securitySchemes:
+    creditsvc_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'http://creditsvc.swagger.io/oauth/dialog'
+          scopes:
+            'write:pets': modify pets in your account
+            'read:pets': read your pets

@@ -10,7 +10,8 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 
 @SpringBootApplication
 @EnableOpenApi
-@ComponentScan(basePackages = { "io.swagger", "io.swagger.api" , "io.swagger.configuration"})
+@ComponentScan(basePackages = { "com.creditsvc.calculator.swagger", 
+		"com.creditsvc.calculator.swagger.api" , "com.creditsvc.calculator.config","com.creditsvc.calculator.bizsvc"})
 public class Swagger2SpringBoot implements CommandLineRunner {
 
     @Override

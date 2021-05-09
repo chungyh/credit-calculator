@@ -50,7 +50,7 @@ public interface CreditserviceApi {
         @ApiResponse(responseCode = "403", description = "Not authenticated", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ErrorResponse.class)))),
         
         @ApiResponse(responseCode = "404", description = "Api not found", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ErrorResponse.class)))) })
-    @RequestMapping(value = "/creditservice/v1/calculator",
+    @RequestMapping(value = "/calculator",
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)

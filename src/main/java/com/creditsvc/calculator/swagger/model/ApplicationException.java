@@ -19,7 +19,7 @@ public class ApplicationException extends Exception {
 	
 	private String errDesc;
 	
-	protected ApplicationException() {
+	public ApplicationException() {
 		super();
 	}
 	

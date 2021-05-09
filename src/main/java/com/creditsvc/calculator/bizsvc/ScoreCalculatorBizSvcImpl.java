@@ -1,34 +1,23 @@
 package com.creditsvc.calculator.bizsvc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import com.creditsvc.calculator.model.Calculator;
+import com.creditsvc.calculator.model.CalculatorFactory;
+import com.creditsvc.calculator.model.CreditScore;
 import com.creditsvc.calculator.swagger.model.ApplicationException;
 import com.creditsvc.calculator.swagger.model.CalculatorRequest;
 import com.creditsvc.calculator.swagger.model.CalculatorRequest.CompanyTypeEnum;
 import com.creditsvc.calculator.swagger.model.CalculatorResponse;
 
 /**
- * This class is for business logic for deposits API. It includes get deposit
- * product list and get deposit product by product id
+ * 
  *
  */
 
@@ -36,33 +25,68 @@ import com.creditsvc.calculator.swagger.model.CalculatorResponse;
 public class ScoreCalculatorBizSvcImpl implements ScoreCalculatorBizSvc {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScoreCalculatorBizSvcImpl.class);
-	
+
+	@Autowired
+	private Environment env;
 
 	/**
-	 * This method returns a list of deposit product information, retrieved records
-	 * from database based on bank , language and productType, optional search
-	 * criteria by customer type and currency code, and paging information based on
-	 * the page request
 	 * 
-	 * @throws ApplicationException 
+	 * 
+	 * @throws ApplicationException
 	 */
 
 	@Override
-	public CalculatorResponse retrieveScore(CalculatorRequest calculatorRequest)
-			throws ApplicationException {
+	public CalculatorResponse retrieveScore(CalculatorRequest calculatorRequest) throws ApplicationException {
 		logger.info("Enter retrieveScore");
 		CalculatorResponse response = new CalculatorResponse();
+		CalculatorFactory calFactory = new CalculatorFactory();
+		CreditScore creditScore = new CreditScore();
 		int employeeNum = calculatorRequest.getNumberOfEmployees();
-		@NotNull CompanyTypeEnum companyType = calculatorRequest.getCompanyType();
+		CompanyTypeEnum companyType = calculatorRequest.getCompanyType();
+		if(null == companyType) {
+			throw new ApplicationException();
+		}
 		int opYrNum = calculatorRequest.getNumberOfYearsOperated();
-		
-		
-		response.setCreditScore(10);
-		
+
+		// Getting score data from application.properties
+		String numOfEmplRange = env.getProperty("creditsvc.calculator.numOfEmployee.range");
+		String numOfEmplScore = env.getProperty("creditsvc.calculator.numOfEmployee.score");
+		String opYrRange = env.getProperty("creditsvc.calculator.opYr.range");
+		String opYrScore = env.getProperty("creditsvc.calculator.opYr.score");
+		String comType = env.getProperty("creditsvc.calculator.companyType");
+		String comTypeScore = env.getProperty("creditsvc.calculator.companyType.score");
+
+		// Number of employee score calculation
+		String numOfEmplRangeSplit[] = numOfEmplRange.split(",");
+		String numOfEmplScoreSplit[] = numOfEmplScore.split(",");
+		Calculator emplNoCalculator = calFactory.getCalculator("NoOfEmployee");
+		emplNoCalculator.setScoreMap(numOfEmplRangeSplit, numOfEmplScoreSplit);
+		creditScore.setNumOfEmplScore(emplNoCalculator.calculateNumericScore(employeeNum));
+		logger.info("empl score: "+creditScore.getNumOfEmplScore());
+		// Operation Year score calculation
+		String opYrRangeSplit[] = opYrRange.split(",");
+		String opYrcoreSplit[] = opYrScore.split(",");
+		Calculator opYrCalculator = calFactory.getCalculator("NoOfYrOperated");
+		opYrCalculator.setScoreMap(opYrRangeSplit, opYrcoreSplit);
+		creditScore.setNumOfYrOpScore(opYrCalculator.calculateNumericScore(opYrNum));
+		logger.info("num of yr score: "+creditScore.getNumOfYrOpScore());
+
+		// Operation Year score calculation
+		String comTypeSplit[] = comType.split(",");
+		String comTypeScoreSplit[] = comTypeScore.split(",");
+		logger.info("comType:"+companyType);
+		Calculator comTypeCalculator = calFactory.getCalculator("CompanyType");
+		comTypeCalculator.setScoreMap(comTypeSplit, comTypeScoreSplit);
+		creditScore.setCompTypeScore(comTypeCalculator.calculateTypeScore(companyType.toString()));
+		logger.info("com type score: "+creditScore.getCompTypeScore());
+
+		creditScore.calculateCreditScore();
+		creditScore.getCreditScore();
+
+		response.setCreditScore(creditScore.getCreditScore());
+
 		return response;
-		
+
 	}
-
-
 
 }

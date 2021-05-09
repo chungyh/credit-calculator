@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.creditsvc.calculator.bizsvc.ScoreCalculatorBizSvcImpl;
@@ -23,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-02T18:59:50.045Z[GMT]")
 @RestController
+@RequestMapping(value = "/creditservice/v1")
 public class CreditserviceApiController implements CreditserviceApi {
 
     private static final Logger log = LoggerFactory.getLogger(CreditserviceApiController.class);
