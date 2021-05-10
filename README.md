@@ -32,7 +32,7 @@ mvn clean install
 3. Execute following command 
 
 ```bash
-	java -jar target\calculator-0.0.1-SNAPSHOT.jar
+java -jar target\calculator-0.0.1-SNAPSHOT.jar
 ```
 
 ## How to Use
