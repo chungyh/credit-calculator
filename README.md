@@ -74,3 +74,40 @@ src/test/resources/Feature
 mvn test
 ```
 
+- You may add "mock" to header with value below to mock error scenario
+401: Unauthorized
+403: Not Authenticated
+
+- For invalid input matching below scenario, 400 bad request error will be returned
+
+	number of employee <= 0
+
+	year of operation < 0
+
+```bash
+company type is included in the below list:
+	
+Sole Proprietorship
+Partnership
+Limited Liability Company
+Others
+```
+
+## Assumption
+- Assume API is called without any missing JSON request fields
+
+## Object Design
+1. Calculator.java      
+1.1 CompanyTypeCalculator.java 			extends Calculator.java  
+1.2 EmployeeNoCalculator.java		    extends Calculator.java  
+1.3 OpYrCalculator.java                 extends Calculator.java  
+2. CreditScore.java
+
+## Swagger
+- You may access swagger ui via http://localhost:8080/swagger-ui/index.html#/
+- Swagger file is placed under 
+
+```bash
+	src/main/resources/templates/openapi.yaml
+```
+

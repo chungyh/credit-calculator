@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.HttpHeadResponseDecorator;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,17 +44,27 @@ public class CreditserviceApiController implements CreditserviceApi {
     }
 
     public ResponseEntity<CalculatorResponse> retrieveScore(@Parameter(in = ParameterIn.DEFAULT, description = "Retrieve a credit assessment score", required=true, schema=@Schema()) @Valid @RequestBody CalculatorRequest body) {
-        String accept = request.getHeader("Accept");
-//        if (accept != null && accept.contains("application/json")) {
+        
+    	String mock = request.getHeader("mock");
+        if(mock.equals("403"))
+        	return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        else if(mock.equals("401"))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
             try {
             	scoreCalculatorBizSvcImpl.retrieveScore(body);
                 //return new ResponseEntity<List<CalculatorResponse>>(objectMapper.readValue("[ {\n  \"creditScore\" : 0\n}, {\n  \"creditScore\" : 0\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
                 return new ResponseEntity<CalculatorResponse>(scoreCalculatorBizSvcImpl.retrieveScore(body), HttpStatus.OK);
             } catch (ApplicationException e) {
             	log.error("ApplicationException", e);
-            	return new ResponseEntity<CalculatorResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+            	if(e.getHttpstatus().equals("400"))
+            		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//            	else if(e.getHttpstatus().equals("401"))
+//            		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//            	else if(e.getHttpstatus().equals("403"))
+//            		return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
- //       }
+			return null;
 
         //return new ResponseEntity<CalculatorResponse>(HttpStatus.NOT_IMPLEMENTED);
     }

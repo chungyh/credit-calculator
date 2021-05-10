@@ -43,10 +43,11 @@ public class ScoreCalculatorBizSvcImpl implements ScoreCalculatorBizSvc {
 		CreditScore creditScore = new CreditScore();
 		int employeeNum = calculatorRequest.getNumberOfEmployees();
 		CompanyTypeEnum companyType = calculatorRequest.getCompanyType();
-		if(null == companyType) {
-			throw new ApplicationException();
-		}
 		int opYrNum = calculatorRequest.getNumberOfYearsOperated();
+		
+		if(employeeNum<=0 || opYrNum<0 || null == companyType) {
+			throw new ApplicationException().addHttpStatusCode("400").errDesc("Invalid input");
+		}
 
 		// Getting score data from application.properties
 		String numOfEmplRange = env.getProperty("creditsvc.calculator.numOfEmployee.range");
